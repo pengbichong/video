@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- 扫描service包下所有使用注解的类型 -->
+    <context:component-scan base-package="org.pbc.video.service"/>
+
+    <!-- 配置数据库相关参数properties的属性：${url} -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+        <property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+        <property name="autoCommitOnClose" value="${c3p0.autoCommitOnClose}"/>
+        <property name="checkoutTimeout" value="${c3p0.checkoutTimeout}"/>
+        <property name="acquireRetryAttempts" value="${c3p0.acquireRetryAttempts}"/>
+    </bean>
+
+    <!-- 配置SqlSessionFactory对象 -->
+    <bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 扫描model包 使用别名 -->
+        <property name="typeAliasesPackage" value="org.pbc.video.model"/>
+        <property name="configuration" ref="mybatisConfig"/>
+        <!-- MP 全局配置注入 -->
+        <property name="globalConfig" ref="globalConfig"/>
+        <property name="plugins">
+            <array>
+                <!-- 分页插件配置 -->
+                <bean id="paginationInterceptor"
+                      class="com.baomidou.mybatisplus.plugins.PaginationInterceptor"/>
+                <!-- 乐观锁插件 -->
+                <bean id="optimisticLockerInterceptor"
+                      class="com.baomidou.mybatisplus.plugins.OptimisticLockerInterceptor">
+                </bean>
+                <!-- 性能拦截器，兼打印sql，不建议生产环境配置-->
+                <bean id="performanceInterceptor"
+                      class="com.baomidou.mybatisplus.plugins.PerformanceInterceptor"/>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="mybatisMapWrapperFactory" class="com.baomidou.mybatisplus.MybatisMapWrapperFactory"/>
+
+    <bean id="mybatisConfig" class="com.baomidou.mybatisplus.MybatisConfiguration">
+        <property name="mapUnderscoreToCamelCase" value="true"/>
+        <property name="jdbcTypeForNull">
+            <util:constant static-field="org.apache.ibatis.type.JdbcType.NULL"/>
+        </property>
+        <property name="objectWrapperFactory" ref="mybatisMapWrapperFactory"/>
+    </bean>
+    <!-- 定义 MP 全局策略 -->
+    <bean id="globalConfig" class="com.baomidou.mybatisplus.entity.GlobalConfiguration">
+        <!-- 逻辑删除 定义下面3个参数-->
+        <property name="sqlInjector" ref="logicSqlInjector"/>
+        <property name="logicDeleteValue" value="-1"/>
+        <property name="logicNotDeleteValue" value="1"/>
+        <!-- 全局ID类型： 0, "数据库ID自增"， 1, "用户输入ID", 2, "全局唯一ID", 3, "全局唯一ID"-->
+        <property name="idType" value="1"/>
+        <!-- 2.1-gamma+ 数据库自动识别，无需配置数据库类型
+        <property name="dbType" value="mysql" />
+        -->
+        <!--主键Sequence-->
+        <!--<property name="keyGenerator" ref="keyGenerator"/>-->
+        <!-- 公共字段填充处理器 -->
+        <!--<property name="metaObjectHandler" ref="myMetaObjectHandler"/>-->
+        <!--数据库关键字转义符，'desc', "desc" 2.1-gamma+不需要制定-->
+        <!--<property name="identifierQuote" value="'" />-->
+    </bean>
+
+    <!-- 配置oracle主键Sequence， 其他类型数据库，请配置相应的类型-->
+    <!--<bean id="keyGenerator" class="com.baomidou.mybatisplus.incrementer.OracleKeyGenerator"/>-->
+
+    <!-- 逻辑删除Sql注入器 -->
+    <bean id="logicSqlInjector" class="com.baomidou.mybatisplus.mapper.LogicSqlInjector"/>
+
+    <!-- 配置mybatis 扫描mapper接口的路径-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.pbc.video.dao"/>
+    </bean>
+
+</beans>

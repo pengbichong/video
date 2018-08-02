@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.pbc.video.dao.VideoInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.pbc.video.model.VideoInfo">
+        <id column="v_id" property="vId" />
+        <result column="img_path" property="imgPath" />
+        <result column="v_time" property="vTime" />
+        <result column="author_id" property="authorId" />
+        <result column="video_path" property="videoPath" />
+        <result column="upload_date" property="uploadDate" />
+        <result column="review_date" property="reviewDate" />
+        <result column="state" property="state" />
+        <result column="t_id" property="tId" />
+        <result column="title" property="title" />
+        <result column="author_name" property="authorName" />
+        <result column="detail" property="detail" />
+        <result column="tag" property="tag" />
+        <result column="clickTime" property="clickTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        v_id, img_path, v_time, author_id, video_path, upload_date, review_date, state, t_id, title, author_name, detail, tag, clickTime AS clickTime
+    </sql>
+
+</mapper>
